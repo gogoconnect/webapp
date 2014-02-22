@@ -1,0 +1,11 @@
+{
+    "applications": {
+        "Gogo Connect": {
+            "applicationId": "OPqna189K6mc31nqwGV8BtWrFMRTHRNNCE1iohOF", 
+            "masterKey": "ZEx2zx8nDsznEfZSJ01QRllvPEblLVWrQ2dn17uP"
+        }, 
+        "_default": {
+            "link": "Gogo Connect"
+        }
+    }
+}
