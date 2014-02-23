@@ -8,11 +8,23 @@ Parse.Cloud.define("hello", function(request, response) {
 	response.success("Hello world!");
 });
 
+
+/*
+ * Allows to register a user using the given details
+ *
+ * Required parameters:
+ * - email
+ * - password
+ * - firstname
+ * - lastname
+ *
+ * returns the new registered user
+ */
 Parse.Cloud.define("register", function(request, response)
 {
 	gc_user.register(request.params).then(
 		function(user) {
-			response.success("Registered " + request.params.username);
+			response.success(user);
 		},
 		function(error) {
 			console.log(error);
@@ -21,6 +33,16 @@ Parse.Cloud.define("register", function(request, response)
 	);
 });
 
+
+/*
+ * Allows to login using the given email and password
+ *
+ * Required parameters:
+ * - email
+ * - password
+ *
+ * returns the user once logged in
+ */
 Parse.Cloud.define("login", function(request, response)
 {
 	gc_user.login(request.params).then(
@@ -29,20 +51,34 @@ Parse.Cloud.define("login", function(request, response)
 		},
 		function(error) {
 			console.log(error);
-			response.error("Failed to login");
+			response.error(error);
 		}
 	);
 });
 
-Parse.Cloud.define("getUser", function(request, response)
+
+/*
+ * Allows to querying of users to find one with
+ * the given first and last name
+ *
+ * Required parameters:
+ * - firstname
+ * - lastname
+ *
+ * Optional parameters:
+ * - dev(bypasses security checking)
+ *
+ * returns a list of matching users
+ */
+Parse.Cloud.define("getUsers", function(request, response)
 {
-	gc_user.login(request.params).then(
-		function(user) {
-			response.success(user);
+	gc_user.getUsers(request.params).then(
+		function(users) {
+			response.success(users);
 		},
 		function(error) {
 			console.log(error);
-			response.error("Failed to login");
+			response.error(error);
 		}
 	);
 });

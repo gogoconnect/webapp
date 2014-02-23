@@ -85,7 +85,7 @@ exports.login = function(parameters)
 //
 // Returns true if user can login with this username
 //
-exports.getUser = function(parameters)
+exports.getUsers = function(parameters)
 {
     if ((!parameters.firstname && typeof parameters.firstname == 'undefined') ||
         (!parameters.lastname && typeof parameters.lastname == 'undefined'))
@@ -94,14 +94,16 @@ exports.getUser = function(parameters)
         return new Parse.Promise().reject("Can't lookup a user if you don't give me their name!")
     }
 
-    var currentUser = Parse.User.current();
-    if (!currentUser)
+    if (!parameters.dev || typeof parameters.dev == 'undefined')
     {
-        console.log("User trying to search without being logged in");
-        return new Parse.Promise().reject("User trying to search without being logged in");
+        var currentUser = Parse.User.current();
+        if (!currentUser)
+        {
+            console.log("User trying to search without being logged in");
+            return new Parse.Promise().reject("User trying to search without being logged in");
+        }
     }
 
-    /*
     var query = new Parse.Query(Parse.User);
     query.equalTo("firstname", parameters.firstname);
     query.equalTo("lastname", parameters.lastname);
@@ -109,13 +111,12 @@ exports.getUser = function(parameters)
     return query.find(
         function(users) {
             if (users.length < 1) {
-                return Parse.Promise.error(NO_USER_MSG);
+                return Parse.Promise.error("No users found with this name");
             }
-            return users[0];
+            return users;
         },
         function(error) {
-            return Parse.Promise.error(NO_USER_MSG);
+            return Parse.Promise.error("No users found with this name");
         }
     );
-    */
 };

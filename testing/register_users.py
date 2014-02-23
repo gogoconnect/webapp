@@ -19,6 +19,7 @@ def testRegister(numUser):
         result = json.loads(connection.getresponse().read())
         print result
 
+
 def testLogin(email, password):
     connection.connect()
     connection.request('POST', '/1/functions/login', json.dumps({
@@ -32,6 +33,22 @@ def testLogin(email, password):
     result = json.loads(connection.getresponse().read())
     print result
 
+
+def testGetUsers(firstname, lastname):
+    connection.connect()
+    connection.request('POST', '/1/functions/getUser', json.dumps({
+           "firstname" : firstname,
+           "lastname" : lastname,
+           "dev" : "YES!",
+         }), {
+           "X-Parse-Application-Id": "OPqna189K6mc31nqwGV8BtWrFMRTHRNNCE1iohOF",
+           "X-Parse-REST-API-Key": "Ck41CErQEaxoTdqkBku06aqzCht8ol0qUt7ERQSu",
+           "Content-Type": "application/json"
+         })
+    result = json.loads(connection.getresponse().read())
+    print result
+
 #testLogin("user_0@gmail.com", "user_0")
 #testRegister(1)
+testGetUsers("first_0", "last_0")
         
