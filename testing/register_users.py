@@ -86,6 +86,6 @@ def testSendMessage(conversationId, msgText):
 #testRegister(2)
 #testGetUsers("first_0", "last_0")
 #testJoinConversation("gJqMIq1BKH")
-testSendMessage("8A0LG96ylJ", "Hey man!")
+testSendMessage("8A0LG96ylJ", "Hey man eyo!")
 
         

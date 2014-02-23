@@ -267,3 +267,31 @@ Parse.Cloud.define("test_sendMessage", function(request, response)
     	}
     );
 });
+
+Parse.Cloud.afterSave("Message", function(request)
+{
+	var options = {
+        username: testUser,
+        email: testEmail,
+        password: testPass
+    };
+
+    var user = new Parse.User(options);
+    user.logIn(testUser, testPass, options).then(
+    	function(user)
+    	{
+			gc_chat.isMessageForMe(request).then(
+				function(result) {
+					if (result == true)
+					{
+						console.log("You got a message man!");
+						// WE WANT TO NOTIFY THE FRONT END!
+					}
+				},
+				function(error) {
+					console.log(error);
+				}
+			);
+    	}
+    );
+});
