@@ -101,7 +101,7 @@ Parse.Cloud.define("getUsers", function(request, response)
 ///////////////////////////////////////////////////////
 
 /*
- * Allows to join a conversation with the given user
+ * Allows the current user to join a conversation with a given user
  *
  * Required parameters:
  * - recipient
@@ -122,6 +122,34 @@ Parse.Cloud.define("joinConversation", function(request, response)
 	gc_chat.joinConversation(request.params).then(
 		function(conversation) {
 			response.success(conversation);
+		},
+		function(error) {
+			console.log(error);
+			response.error(error);
+		}
+	);
+});
+
+/*
+ * Allows sending of a message in a given conversation
+ *
+ * Required parameters:
+ * - conversationId
+ * - msgText
+ *
+ * returns the id of that message
+ */
+Parse.Cloud.define("sendMessage", function(request, response)
+{
+	if (gc_user.currentUsersIsValid())
+	{
+		response.error("Must log in before joining a conversation");
+		return;
+	}
+
+	gc_chat.sendMessage(request.params).then(
+		function(message) {
+			response.success(message);
 		},
 		function(error) {
 			console.log(error);
@@ -171,7 +199,7 @@ Parse.Cloud.define("test_getUsers", function(request, response)
 });
 
 /*
- * Allows to join a conversation with the given user
+ * Allows the current user to join a conversation with a given user
  *
  * Required parameters:
  * - recipient
@@ -196,6 +224,40 @@ Parse.Cloud.define("test_joinConversation", function(request, response)
 			gc_chat.joinConversation(request.params).then(
 				function(conversation) {
 					response.success(conversation);
+				},
+				function(error) {
+					console.log(error);
+					response.error(error);
+				}
+			);
+    	}
+    );
+});
+
+/*
+ * Allows sending of a message in a given conversation
+ *
+ * Required parameters:
+ * - conversationId
+ * - msgText
+ *
+ * returns the id of that message
+ */
+Parse.Cloud.define("test_sendMessage", function(request, response)
+{
+	var options = {
+        username: testUser,
+        email: testEmail,
+        password: testPass
+    };
+
+    var user = new Parse.User(options);
+    user.logIn(testUser, testPass, options).then(
+    	function(user)
+    	{
+			gc_chat.sendMessage(request.params).then(
+				function(message) {
+					response.success(message);
 				},
 				function(error) {
 					console.log(error);

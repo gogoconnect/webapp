@@ -64,6 +64,20 @@ def testJoinConversation(recipient):
     print result
 
 
+def testSendMessage(conversationId, msgText):
+    connection.connect()
+    connection.request('POST', '/1/functions/test_sendMessage', json.dumps({
+        "conversationId" : conversationId,
+        "msgText" : msgText,
+    }), {
+        "X-Parse-Application-Id": "OPqna189K6mc31nqwGV8BtWrFMRTHRNNCE1iohOF",
+        "X-Parse-REST-API-Key": "Ck41CErQEaxoTdqkBku06aqzCht8ol0qUt7ERQSu",
+        "Content-Type": "application/json"
+    })
+    result = json.loads(connection.getresponse().read())
+    print result
+
+
 #######################################################
 #################### RUNNING TESTS ####################
 #######################################################
@@ -71,5 +85,7 @@ def testJoinConversation(recipient):
 #testLogin("user_0@gmail.com", "user_0")
 #testRegister(2)
 #testGetUsers("first_0", "last_0")
-testJoinConversation("gJqMIq1BKH")
+#testJoinConversation("gJqMIq1BKH")
+testSendMessage("8A0LG96ylJ", "Hey man!")
+
         

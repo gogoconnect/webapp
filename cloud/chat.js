@@ -43,13 +43,50 @@ exports.joinConversation = function(parameters)
             convesation.save().then(function(result)
             {
                 promise.resolve(result);
-            }, function(error) {
+            },
+            function(error) {
                 promise.reject(error);
             });
         }
     }, function(error) {
         promise.reject(error);
     });
+
+    return promise;
+};
+
+exports.sendMessage = function(parameters)
+{
+    var promise = new Parse.Promise();
+
+    if ((!parameters.conversationId && typeof parameters.conversationId == 'undefined') ||
+        (!parameters.msgText && typeof parameters.msgText == 'undefined'))
+    {
+        console.log("Cannot send msg if you don't tell me which conversation, or what to send!");
+        promise.reject("Cannot send msg if you don't tell me which conversation, or what to send!");
+        return promise;
+    }
+
+    var currentUID = Parse.User.current().id;
+    var conversationId = parameters.conversationId;
+    var msgText = parameters.msgText;
+
+    var Message = Parse.Object.extend("Message");
+    var message = new Message();
+
+    message.set("conversationId", conversationId);
+    message.set("text", msgText);
+    message.set("author", currentUID);
+
+    message.save(null).then(
+        function(msg) {
+            if (msg == undefined)   promise.reject("Could not create message");
+            else                    promise.resolve(msg);
+        },
+        function(error) {
+            console.log(error);
+            promise.reject("Could not create message");
+        });
 
     return promise;
 };
