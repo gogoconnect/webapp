@@ -78,6 +78,32 @@ def testSendMessage(conversationId, msgText):
     print result
 
 
+def testGetConversations():
+    connection.connect()
+    connection.request('POST', '/1/functions/test_getConversations', json.dumps({}),
+    {
+        "X-Parse-Application-Id": "OPqna189K6mc31nqwGV8BtWrFMRTHRNNCE1iohOF",
+        "X-Parse-REST-API-Key": "Ck41CErQEaxoTdqkBku06aqzCht8ol0qUt7ERQSu",
+        "Content-Type": "application/json"
+    })
+    result = json.loads(connection.getresponse().read())
+    print result
+
+
+def testGetMsgsForConversation(conversationId):
+    connection.connect()
+    connection.request('POST', '/1/functions/test_getMsgsForConversation', json.dumps({
+        "conversationId" : conversationId,
+    }), {
+        "X-Parse-Application-Id": "OPqna189K6mc31nqwGV8BtWrFMRTHRNNCE1iohOF",
+        "X-Parse-REST-API-Key": "Ck41CErQEaxoTdqkBku06aqzCht8ol0qUt7ERQSu",
+        "Content-Type": "application/json"
+    })
+    result = json.loads(connection.getresponse().read())
+    print result
+
+
+
 #######################################################
 #################### RUNNING TESTS ####################
 #######################################################
@@ -86,6 +112,8 @@ def testSendMessage(conversationId, msgText):
 #testRegister(2)
 #testGetUsers("first_0", "last_0")
 #testJoinConversation("gJqMIq1BKH")
-testSendMessage("8A0LG96ylJ", "Hey man eyo!")
+#testSendMessage("8A0LG96ylJ", "Hey man eyo!")
+#testGetConversations()
+testGetMsgsForConversation("8A0LG96ylJ")
 
         

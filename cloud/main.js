@@ -158,6 +158,85 @@ Parse.Cloud.define("sendMessage", function(request, response)
 	);
 });
 
+/*
+ * // Listens for new messages //
+ * notifies Express if a message should be displayed to the current user
+ */
+/*
+Parse.Cloud.afterSave("Message", function(request)
+{
+	if (gc_user.currentUsersIsValid())
+	{
+		console.log("Weird, the message checking got a message for an offline user???");
+		return;
+	}
+
+	gc_chat.isMessageForMe(request).then(
+		function(result) {
+			if (result == true)
+			{
+				console.log("You got a message man!");
+				// WE WANT TO NOTIFY THE FRONT END!
+			}
+		},
+		function(error) {
+			console.log(error);
+		}
+	);
+});
+*/
+
+/*
+ * Finds all the conversations involving the current user
+ *
+ * returns a list of converstion Ids
+ */
+Parse.Cloud.define("getConversations", function(request, response)
+{
+	if (gc_user.currentUsersIsValid())
+	{
+		console.log("Weird, the message checking got a message for an offline user???");
+		return;
+	}
+
+	gc_chat.getConverstations().then(
+		function(conversations) {
+			response.success(conversations);
+		},
+		function(error) {
+			console.log(error);
+			response.error(error);
+		}
+	);
+});
+
+/*
+ * Finds all the messages for a given conversation
+ *
+ * Required parameters:
+ * - conversationId
+ *
+ * returns a list of messages
+ */
+Parse.Cloud.define("getMsgsForConversation", function(request, response)
+{
+	if (gc_user.currentUsersIsValid())
+	{
+		console.log("Weird, the message checking got a message for an offline user???");
+		return;
+	}
+
+	gc_chat.getMsgsForConversation(request.params).then(
+		function(conversations) {
+			response.success(conversations);
+		},
+		function(error) {
+			console.log(error);
+			response.error(error);
+		}
+	);
+});
+
 
 ///////////////////////////////////////////////////////
 /////////////////// DEV DEV DEV DEV ///////////////////
@@ -268,6 +347,10 @@ Parse.Cloud.define("test_sendMessage", function(request, response)
     );
 });
 
+/*
+ * // Listens for new messages //
+ * notifies Express if a message should be displayed to the current user
+ */
 Parse.Cloud.afterSave("Message", function(request)
 {
 	var options = {
@@ -290,6 +373,69 @@ Parse.Cloud.afterSave("Message", function(request)
 				},
 				function(error) {
 					console.log(error);
+				}
+			);
+    	}
+    );
+});
+
+/*
+ * Finds all the conversations involving the current user
+ *
+ * returns a list of converstion Ids
+ */
+Parse.Cloud.define("test_getConversations", function(request, response)
+{
+	var options = {
+        username: testUser,
+        email: testEmail,
+        password: testPass
+    };
+
+    var user = new Parse.User(options);
+    user.logIn(testUser, testPass, options).then(
+    	function(user)
+    	{
+			gc_chat.getConverstations().then(
+				function(conversations) {
+					response.success(conversations);
+				},
+				function(error) {
+					console.log(error);
+					response.error(error);
+				}
+			);
+    	}
+    );
+});
+
+/*
+ * Finds all the messages for a given conversation
+ *
+ * Required parameters:
+ * - conversationId
+ *
+ * returns a list of messages
+ */
+Parse.Cloud.define("test_getMsgsForConversation", function(request, response)
+{
+	var options = {
+        username: testUser,
+        email: testEmail,
+        password: testPass
+    };
+
+    var user = new Parse.User(options);
+    user.logIn(testUser, testPass, options).then(
+    	function(user)
+    	{
+			gc_chat.getMsgsForConversation(request.params).then(
+				function(conversations) {
+					response.success(conversations);
+				},
+				function(error) {
+					console.log(error);
+					response.error(error);
 				}
 			);
     	}

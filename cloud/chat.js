@@ -127,3 +127,54 @@ exports.isMessageForMe = function(parameters)
 
     return promise;
 };
+
+exports.getConverstations = function()
+{
+    var promise = new Parse.Promise();
+    var currentUID = Parse.User.current().id;
+
+    // CHECK if the given conversation includes the current user
+
+    var query1 = new Parse.Query("Conversation");
+    query1.equalTo("UID1", currentUID);
+
+    var query2 = new Parse.Query("Conversation");
+    query2.equalTo("UID2", currentUID);
+
+    var query = Parse.Query.or(query1, query2);
+    query.find().then(function(results)
+    {
+        promise.resolve(results);
+    },
+    function(error) {
+        promise.error(error);
+    });
+
+    return promise;
+};
+
+exports.getMsgsForConversation = function(parameters)
+{
+    var promise = new Parse.Promise();
+
+    var conversationId = parameters.conversationId;
+    if (!parameters.conversationId && typeof parameters.conversationId == 'undefined')
+    {
+        console.log("Could not find conversation id");
+        promise.reject("Could not find conversation id");
+        return promise;
+    }
+
+    var query = new Parse.Query("Message");
+    query.equalTo("conversationId", conversationId);
+
+    query.find().then(function(results)
+    {
+        promise.resolve(results);
+    },
+    function(error) {
+        promise.error(error);
+    });
+
+    return promise;
+};
