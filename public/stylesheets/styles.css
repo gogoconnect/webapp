@@ -1,0 +1,55 @@
+body {
+	margin-top: 125px; /* adjust this if the height of the menu bar changes */
+        background-color: #202020;
+}
+
+.nav {
+	margin-top: 28px; /* this is a faux center fix for the nav options - adjust this if you wish to change the logo height or the font of the menu items */
+        font-family: helvetica, arial, sans-serif;
+}
+
+.navbar-inverse {
+        background-color: rgba(0, 0, 0, 0.5);
+        border-bottom: #fff;
+}
+
+.navbar-brand.logo-nav img{
+        height: 75px;
+}
+
+a.login-link:hover{
+	color: rgba(255, 255, 255, 0.5) !important;
+}
+
+#chatBox {
+	height: 500px;
+	overflow: scroll;
+	background: white;
+	border-radius: 5px;
+        background-color: rgba(255,255,255,0.83)
+}
+
+#userBar {
+	height: 500px;
+	background: white;
+	border-radius: 5px;
+	border-left: 2px solid #eee;
+        background-color: rgba(255,255,255,0.83)
+}
+
+
+#welcome_message .well{
+	background-color: rgba(236, 240, 241, 0.83);
+}
+
+@media (min-width: 800px) { 
+	body{
+		background-size: cover;
+	}
+	#plane{
+		background: transparent url(../images/planebg.jpg) no-repeat center;
+	}
+	#planebgc{
+		background: transparent url(../images/planebgc.jpg) no-repeat center;
+	}
+}
