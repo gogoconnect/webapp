@@ -6,7 +6,7 @@ def testRegister(numUser):
     for x in range(0, numUser):
         connection.connect()
         connection.request('POST', '/1/functions/register', json.dumps({
-            "username" : "user_" + str(x),
+            "username" : "user_" + str(x) + "@gmail.com",
             "password" : "user_" + str(x),
             "email" : "user_" + str(x) + "@gmail.com",
             "firstname" : "first_" + str(x),
@@ -103,6 +103,38 @@ def testGetMsgsForConversation(conversationId):
     print result
 
 
+def testAddOptionalData(age, gender, city, country):
+    connection.connect()
+    connection.request('POST', '/1/functions/test_addOptionalData', json.dumps({
+        "age" : age,
+        "gender" : gender,
+        "city" : city,
+        "country" : country,
+    }), {
+        "X-Parse-Application-Id": "OPqna189K6mc31nqwGV8BtWrFMRTHRNNCE1iohOF",
+        "X-Parse-REST-API-Key": "Ck41CErQEaxoTdqkBku06aqzCht8ol0qUt7ERQSu",
+        "Content-Type": "application/json"
+    })
+    result = json.loads(connection.getresponse().read())
+    print result
+
+
+def testInvite(firstname, lastname, email, phone):
+    connection.connect()
+    connection.request('POST', '/1/functions/test_invite', json.dumps({
+        "firstname" : firstname,
+        "lastname" : lastname,
+        "email" : email,
+        "phone" : phone,
+    }), {
+        "X-Parse-Application-Id": "OPqna189K6mc31nqwGV8BtWrFMRTHRNNCE1iohOF",
+        "X-Parse-REST-API-Key": "Ck41CErQEaxoTdqkBku06aqzCht8ol0qUt7ERQSu",
+        "Content-Type": "application/json"
+    })
+    result = json.loads(connection.getresponse().read())
+    print result
+
+
 
 #######################################################
 #################### RUNNING TESTS ####################
@@ -114,6 +146,8 @@ def testGetMsgsForConversation(conversationId):
 #testJoinConversation("gJqMIq1BKH")
 #testSendMessage("8A0LG96ylJ", "Hey man eyo!")
 #testGetConversations()
-testGetMsgsForConversation("8A0LG96ylJ")
+#testGetMsgsForConversation("8A0LG96ylJ")
+testAddOptionalData("21", "female", "Chicago", "US")
+#testInvite("Geoff", "Les", "gefthefrench@gmail.com", "312-860-2305")
 
         
