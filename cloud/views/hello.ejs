@@ -1,0 +1,44 @@
+<div id="welcome_message" class="row">
+	<div class="well col-md-12">
+		<h1>Welcome</h1>
+		<p><%= message %></p>
+	</div>
+</div>
+
+<% if(Parse.User.current()) { %>
+
+<div class="row">
+	<div class="col-md-6">
+		<form class="navbar-form" role="search">
+	        <div class="ui-widget input-group">
+	            <input placeholder="Search for a contact..." type="text" class="form-control" name="userSearch" id="searchBar" />
+	            <div class="input-group-btn">
+	                <button class="btn btn-default" id="search" type="button"><i class="glyphicon glyphicon-search"></i></button>
+	            </div>
+	        </div>
+        </form>
+    </div>
+</div>
+<div class="row">
+	<div class="col-md-6">
+		<ul class="matches"></ul>
+	</div>
+</div>
+<div class="row">
+	<div id="chatBox" class="col-md-5"></div>
+	<div id="userBar" class="col-md-1"></div>
+</div>
+<div class="row">
+	<div class="col-md-6">
+		<form class="navbar-form">
+			<div class="input-group">
+				<input type="text" placeholder="Type a message" class="form-control" name="message" id="messageBar" />
+				<div class="input-group-btn">
+					<button class="btn btn-default" id="submit" type="button">Submit</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<% } %>

@@ -1,11 +1,9 @@
-
 exports.joinConversation = function(parameters)
 {
     var promise = new Parse.Promise();
 
     if (!parameters.recipient && typeof parameters.recipient == 'undefined')
     {
-        console.log("Cannot join a conversation with no one!");
         promise.reject("Cannot join a conversation with no one!")
         return promise;
     }
@@ -58,11 +56,11 @@ exports.joinConversation = function(parameters)
 exports.sendMessage = function(parameters)
 {
     var promise = new Parse.Promise();
+    console.log("Calling sendMessage");
 
     if ((!parameters.conversationId && typeof parameters.conversationId == 'undefined') ||
         (!parameters.msgText && typeof parameters.msgText == 'undefined'))
     {
-        console.log("Cannot send msg if you don't tell me which conversation, or what to send!");
         promise.reject("Cannot send msg if you don't tell me which conversation, or what to send!");
         return promise;
     }
@@ -98,7 +96,6 @@ exports.isMessageForMe = function(parameters)
     var conversationId = parameters.object.get("conversationId");
     if (!conversationId && typeof conversationId == 'undefined')
     {
-        console.log("Could not find message conversation");
         promise.reject("Could not find message conversation");
         return promise;
     }
@@ -160,7 +157,6 @@ exports.getMsgsForConversation = function(parameters)
     var conversationId = parameters.conversationId;
     if (!parameters.conversationId && typeof parameters.conversationId == 'undefined')
     {
-        console.log("Could not find conversation id");
         promise.reject("Could not find conversation id");
         return promise;
     }

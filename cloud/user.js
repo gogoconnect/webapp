@@ -1,24 +1,13 @@
-
 ///////////////////////////////////////////////////////
 //////////////////////// TOOLS ////////////////////////
 ///////////////////////////////////////////////////////
 
-function getEmailPrefix(email)
-{
-    return email.substring(0, email.indexOf("@"));
-}
-
-function isUserAuthenticated(username)
-{
-    var currentUser = Parse.User.current();
-    if (!currentUser)                               return false;
-    if (!currentUser.authenticated())               return false;
-    if (!username || username == undefined)         return true;
-    if (currentUser.getUsername() != username)      return false;
-
-    return true;
-}
 exports.currentUsersIsValid = function()
+{
+    return iscurrentUsersIsValid();
+}
+
+function iscurrentUsersIsValid()
 {
     var currentUser = Parse.User.current();
     if (!currentUser)                           return false;
@@ -41,12 +30,11 @@ exports.register = function(parameters)
         (!parameters.firstname && typeof parameters.firstname == 'undefined') ||
         (!parameters.lastname && typeof parameters.lastname == 'undefined'))
     {
-        console.log("Registration request is missing some parameters");
         promise.reject("Registration request is missing some parameters");
         return promise;
     }
 
-    var username = getEmailPrefix(parameters.email);
+    var username = parameters.email;
     var password = parameters.password;
     var email = parameters.email;
     var first = parameters.firstname;
@@ -64,8 +52,8 @@ function register_a_user(username, password, email, first, last)
     user.set('password', password);
     user.set('email', email);
 
-    user.set('firstname', first);
-    user.set('lastname', last);
+    user.set('firstname', first.toLowerCase());
+    user.set('lastname', last.toLowerCase());
 
     user.signUp().then(function(user)
     {
@@ -79,9 +67,6 @@ function register_a_user(username, password, email, first, last)
     return promise;
 }
 
-//
-// Returns true if user can login with this username
-//
 exports.login = function(parameters)
 {
     var promise = new Parse.Promise();
@@ -89,15 +74,15 @@ exports.login = function(parameters)
     if ((!parameters.password && typeof parameters.password == 'undefined') ||
         (!parameters.email && typeof parameters.email == 'undefined'))
     {
-        console.log("Can't login without username and password");
         promise.reject("Can't login without username and password");
         return promise;
     }
 
-    var username = getEmailPrefix(parameters.email);
+    var username = parameters.email;
     var password = parameters.password;
 
-    if (isUserAuthenticated(username))
+    var currentUser = Parse.User.current();
+    if (currentUser && currentUser.getUsername() == username)
     {
         console.log("Already logged in");
         promise.resolve(Parse.User().current());
@@ -106,7 +91,7 @@ exports.login = function(parameters)
 
     var options = {
         username: username,
-        email: parameters.email,
+        email: username,
         password: password
     };
 
@@ -114,9 +99,41 @@ exports.login = function(parameters)
     return user.logIn(username, password, options);
 };
 
-//
-// Returns true if user can login with this username
-//
+exports.getUser = function(parameters)
+{
+    var promise = new Parse.Promise();
+
+    if (!parameters.userId && typeof parameters.userId == 'undefined')
+    {
+        promise.reject("Can't get a user if you don't give me their id!");
+        return promise;
+    }
+
+    if (!iscurrentUsersIsValid())
+    {
+        promise.reject("User trying to search without being logged in");
+        return promise;
+    }
+
+    var query = new Parse.Query(Parse.User);
+    query.equalTo("objectId", parameters.userId);
+    query.limit(1);
+
+    query.find({
+        success: function(user) {
+            if (users.length < 1) {
+                 promise.reject("No user found with this id");
+            }
+            else promise.resolve(user[0]);
+        },
+        error: function(object, error) {
+            console.log(error);
+            promise.reject("Could not look for user with given id");
+        }
+    });
+    return promise;
+};
+
 exports.getUsers = function(parameters)
 {
     var promise = new Parse.Promise();
@@ -124,33 +141,108 @@ exports.getUsers = function(parameters)
     if ((!parameters.firstname && typeof parameters.firstname == 'undefined') ||
         (!parameters.lastname && typeof parameters.lastname == 'undefined'))
     {
-        console.log("Can't lookup a user if you don't give me their name!");
         promise.reject("Can't lookup a user if you don't give me their name!");
         return promise;
     }
 
-    if (!isUserAuthenticated())
+    if (!iscurrentUsersIsValid())
     {
-        console.log("User trying to search without being logged in");
         promise.reject("User trying to search without being logged in");
         return promise;
     }
 
+    var userId = Parse.User.current().id;
     var query = new Parse.Query(Parse.User);
-    query.equalTo("firstname", parameters.firstname);
-    query.equalTo("lastname", parameters.lastname);
+    query.equalTo("firstname", parameters.firstname.toLowerCase());
+    query.equalTo("lastname", parameters.lastname.toLowerCase());
+    query.notEqualTo("objectId", userId);
 
-    return query.find(
-        function(users) {
+    query.find({
+        success: function(users) {
             if (users.length < 1) {
-                promise.error("No users found with this name");
-                return promise;
+                 promise.reject("No users found with this name");
             }
-            return users;
+            else 
+            {
+                var userIds = [];
+                var usersDict = {};
+                var usersFull = [];
+                var doneIds = [];
+                var i = 0, user;
+                while(user = users[i++]) {
+                    userIds.push(user.id);
+                    usersDict[user.id] = user;
+
+                    var sub_query = new Parse.Query('Optional');
+                    sub_query.equalTo("userId", user.id);
+
+                    sub_query.find({
+                        success: function(optionals) {
+                            if (optionals && optionals.length > 0)
+                            {
+                                var i = 0, optional;
+                                while(optional = optionals[i++])
+                                {
+                                    doneIds.push(optional.get("userId"));
+                                    usersFull.push([usersDict[optional.get("userId")], optional]);
+                                }
+                            }
+                        },
+                        error: function(object, error)
+                        {
+                            console.log(error);
+                        }
+                    });
+                }
+
+                var i = 0, uid;
+                while(uid = userIds[i++])
+                {
+                    if (doneIds.indexOf(uid) > -1) continue;
+                    usersFull.push([usersDict[uid]]);
+                }
+
+                promise.resolve(usersFull);
+            }
         },
-        function(error) {
-            promise.error("No users found with this name");
-            return promise;
+        error: function(object, error) {
+            console.log(error);
+            promise.reject("Could not look for users with this name");
         }
-    );
+    });
+    return promise;
+};
+
+exports.optionalData = function(parameters)
+{
+    var promise = new Parse.Promise();
+
+    var gender, age, city, country;
+
+    if (parameters.gender && parameters.gender != 'undefined')      gender = parameters.gender;
+    if (parameters.age && parameters.age != 'undefined')            age = parameters.age;
+    if (parameters.city && parameters.city != 'undefined')          city = parameters.city;
+    if (parameters.country && parameters.country != 'undefined')    country = parameters.country;
+
+    var Optional = Parse.Object.extend("Optional");
+    var optional = new Optional();
+
+    var userId = Parse.User.current().id;
+
+    optional.set("userId", userId);
+
+    if (gender != 'undefined')  optional.set("gender", gender);
+    if (age != 'age')           optional.set("age", age);
+    if (city != 'city')         optional.set("city", city);
+    if (country != 'undefined') optional.set("country", country);
+
+    optional.save().then(function(result)
+    {
+        promise.resolve(result);
+    },
+    function(error) {
+        promise.reject(error);
+    });
+
+    return promise;
 };

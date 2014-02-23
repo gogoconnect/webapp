@@ -1,17 +1,8 @@
+require('cloud/app.js');
 
 var gc_user = require('cloud/user.js');
 var gc_chat = require('cloud/chat.js');
-
-var testUser = "user_0";
-var testPass = "user_0";
-var testEmail = "user_0@gmail.com";
-
-
-// Use Parse.Cloud.define to define as many cloud functions as you want.
-// For example:
-Parse.Cloud.define("hello", function(request, response) {
-	response.success("Hello world!");
-});
+var gc_invite = require('cloud/invite.js');
 
 
 ///////////////////////////////////////////////////////
@@ -31,15 +22,15 @@ Parse.Cloud.define("hello", function(request, response) {
  */
 Parse.Cloud.define("register", function(request, response)
 {
-	gc_user.register(request.params).then(
-		function(user) {
-			response.success(user);
-		},
-		function(error) {
-			console.log(error);
-			response.error("Failed to register " + request.params.username);
-		}
-	);
+  gc_user.register(request.params).then(
+    function(user) {
+      response.success(user);
+    },
+    function(error) {
+      console.log(error);
+      response.error("Failed to register " + request.params.username);
+    }
+  );
 });
 
 
@@ -54,15 +45,37 @@ Parse.Cloud.define("register", function(request, response)
  */
 Parse.Cloud.define("login", function(request, response)
 {
-	gc_user.login(request.params).then(
-		function(user) {
-			response.success(user);
-		},
-		function(error) {
-			console.log(error);
-			response.error(error);
-		}
-	);
+  gc_user.login(request.params).then(
+    function(user) {
+      response.success(user);
+    },
+    function(error) {
+      console.log(error);
+      response.error(error);
+    }
+  );
+});
+
+
+/*
+ * Allows to get a user with the given id
+ *
+ * Required parameters:
+ * - userId
+ *
+ * returns the user
+ */
+Parse.Cloud.define("getUserWithId", function(request, response)
+{
+  gc_user.getUser(request.params).then(
+    function(user) {
+      response.success(user);
+    },
+    function(error) {
+      console.log(error);
+      response.error(error);
+    }
+  );
 });
 
 
@@ -78,21 +91,21 @@ Parse.Cloud.define("login", function(request, response)
  */
 Parse.Cloud.define("getUsers", function(request, response)
 {
-	if (gc_user.currentUsersIsValid())
-	{
-		response.error("Must log in before querying for users conversation");
-		return;
-	}
+  if (!gc_user.currentUsersIsValid())
+  {
+    response.error("Must log in before querying for users conversation");
+    return;
+  }
 
-	gc_user.getUsers(request.params).then(
-		function(users) {
-			response.success(users);
-		},
-		function(error) {
-			console.log(error);
-			response.error(error);
-		}
-	);
+  gc_user.getUsers(request.params).then(
+    function(users) {
+      response.success(users);
+    },
+    function(error) {
+      console.log(error);
+      response.error(error);
+    }
+  );
 });
 
 
@@ -113,21 +126,21 @@ Parse.Cloud.define("getUsers", function(request, response)
  */
 Parse.Cloud.define("joinConversation", function(request, response)
 {
-	if (gc_user.currentUsersIsValid())
-	{
-		response.error("Must log in before joining a conversation");
-		return;
-	}
+  if (!gc_user.currentUsersIsValid())
+  {
+    response.error("Must log in before joining a conversation");
+    return;
+  }
 
-	gc_chat.joinConversation(request.params).then(
-		function(conversation) {
-			response.success(conversation);
-		},
-		function(error) {
-			console.log(error);
-			response.error(error);
-		}
-	);
+  gc_chat.joinConversation(request.params).then(
+    function(conversation) {
+      response.success(conversation);
+    },
+    function(error) {
+      console.log(error);
+      response.error(error);
+    }
+  );
 });
 
 /*
@@ -141,50 +154,48 @@ Parse.Cloud.define("joinConversation", function(request, response)
  */
 Parse.Cloud.define("sendMessage", function(request, response)
 {
-	if (gc_user.currentUsersIsValid())
-	{
-		response.error("Must log in before joining a conversation");
-		return;
-	}
+  if (!gc_user.currentUsersIsValid())
+  {
+    response.error("Must log in before sending a message");
+    return;
+  }
 
-	gc_chat.sendMessage(request.params).then(
-		function(message) {
-			response.success(message);
-		},
-		function(error) {
-			console.log(error);
-			response.error(error);
-		}
-	);
+  gc_chat.sendMessage(request.params).then(
+    function(message) {
+      response.success(message);
+    },
+    function(error) {
+      console.log(error);
+      response.error(error);
+    }
+  );
 });
 
 /*
  * // Listens for new messages //
  * notifies Express if a message should be displayed to the current user
  */
-/*
 Parse.Cloud.afterSave("Message", function(request)
 {
-	if (gc_user.currentUsersIsValid())
-	{
-		console.log("Weird, the message checking got a message for an offline user???");
-		return;
-	}
+  if (gc_user.currentUsersIsValid())
+  {
+    console.log("Weird, the message checking got a message for an offline user???");
+    return;
+  }
 
-	gc_chat.isMessageForMe(request).then(
-		function(result) {
-			if (result == true)
-			{
-				console.log("You got a message man!");
-				// WE WANT TO NOTIFY THE FRONT END!
-			}
-		},
-		function(error) {
-			console.log(error);
-		}
-	);
+  gc_chat.isMessageForMe(request).then(
+    function(result) {
+      if (result == true)
+      {
+        console.log("You got a message man!");
+        // WE WANT TO NOTIFY THE FRONT END!
+      }
+    },
+    function(error) {
+      console.log(error);
+    }
+  );
 });
-*/
 
 /*
  * Finds all the conversations involving the current user
@@ -193,21 +204,21 @@ Parse.Cloud.afterSave("Message", function(request)
  */
 Parse.Cloud.define("getConversations", function(request, response)
 {
-	if (gc_user.currentUsersIsValid())
-	{
-		console.log("Weird, the message checking got a message for an offline user???");
-		return;
-	}
+  if (!gc_user.currentUsersIsValid())
+  {
+    console.log("Weird, the message checking got a message for an offline user???");
+    return;
+  }
 
-	gc_chat.getConverstations().then(
-		function(conversations) {
-			response.success(conversations);
-		},
-		function(error) {
-			console.log(error);
-			response.error(error);
-		}
-	);
+  gc_chat.getConverstations().then(
+    function(conversations) {
+      response.success(conversations);
+    },
+    function(error) {
+      console.log(error);
+      response.error(error);
+    }
+  );
 });
 
 /*
@@ -220,27 +231,92 @@ Parse.Cloud.define("getConversations", function(request, response)
  */
 Parse.Cloud.define("getMsgsForConversation", function(request, response)
 {
-	if (gc_user.currentUsersIsValid())
-	{
-		console.log("Weird, the message checking got a message for an offline user???");
-		return;
-	}
+  if (!gc_user.currentUsersIsValid())
+  {
+    console.log("Weird, the message checking got a message for an offline user???");
+    return;
+  }
 
-	gc_chat.getMsgsForConversation(request.params).then(
-		function(conversations) {
-			response.success(conversations);
-		},
-		function(error) {
-			console.log(error);
-			response.error(error);
-		}
-	);
+  gc_chat.getMsgsForConversation(request.params).then(
+    function(conversations) {
+      response.success(conversations);
+    },
+    function(error) {
+      console.log(error);
+      response.error(error);
+    }
+  );
+});
+
+/*
+ * Adds in optional data from the user for the messaging
+ *
+ * Required parameters:
+ * - gender
+ * - age
+ * - city
+ * - country
+ *
+ * returns a list of messages
+ */
+Parse.Cloud.define("addOptionalData", function(request, response)
+{
+  if (!gc_user.currentUsersIsValid())
+  {
+    console.log("Weird, the message checking got a message for an offline user???");
+    return;
+  }
+
+  gc_user.optionalData(request.params).then(
+    function(conversations) {
+      response.success(conversations);
+    },
+    function(error) {
+      console.log(error);
+      response.error(error);
+    }
+  );
+});
+
+/*
+ * Invites users based on email or phone
+ *
+ * Required parameters:
+ * - firstname
+ * - lastname
+ *
+ * Optional required parameters: (EITHER)
+ * - email
+ * - phone
+ *
+ */
+Parse.Cloud.define("invite", function(request, response)
+{
+  if (!gc_user.currentUsersIsValid())
+  {
+    console.log("Weird, the message checking got a message for an offline user???");
+    return;
+  }
+
+  gc_invite.invite(request.params).then(
+    function(conversations) {
+      response.success(conversations);
+    },
+    function(error) {
+      console.log(error);
+      response.error(error);
+    }
+  );
 });
 
 
 ///////////////////////////////////////////////////////
 /////////////////// DEV DEV DEV DEV ///////////////////
 ///////////////////////////////////////////////////////
+
+var testUser = "user_0@gmail.com";
+var testPass = "user_0";
+var testEmail = "user_0@gmail.com";
 
 /*
  * Allows to querying of users to find one with
@@ -254,7 +330,7 @@ Parse.Cloud.define("getMsgsForConversation", function(request, response)
  */
 Parse.Cloud.define("test_getUsers", function(request, response)
 {
-	var options = {
+  var options = {
         username: testUser,
         email: testEmail,
         password: testPass
@@ -262,18 +338,22 @@ Parse.Cloud.define("test_getUsers", function(request, response)
 
     var user = new Parse.User(options);
     user.logIn(testUser, testPass, options).then(
-    	function(user)
-    	{
-			gc_user.getUsers(request.params).then(
-				function(users) {
-					response.success(users);
-				},
-				function(error) {
-					console.log(error);
-					response.error(error);
-				}
-			);
-    	}
+      function(user)
+      {
+        gc_user.getUsers(request.params).then(
+          function(users) {
+            response.success(users);
+          },
+          function(error) {
+            console.log(error);
+            response.error(error);
+          }
+        );
+      }, function(error)
+      {
+        console.log("Got error!");
+        response.error(error);
+      }
     );
 });
 
@@ -290,7 +370,7 @@ Parse.Cloud.define("test_getUsers", function(request, response)
  */
 Parse.Cloud.define("test_joinConversation", function(request, response)
 {
-	var options = {
+  var options = {
         username: testUser,
         email: testEmail,
         password: testPass
@@ -298,18 +378,18 @@ Parse.Cloud.define("test_joinConversation", function(request, response)
 
     var user = new Parse.User(options);
     user.logIn(testUser, testPass, options).then(
-    	function(user)
-    	{
-			gc_chat.joinConversation(request.params).then(
-				function(conversation) {
-					response.success(conversation);
-				},
-				function(error) {
-					console.log(error);
-					response.error(error);
-				}
-			);
-    	}
+      function(user)
+      {
+      gc_chat.joinConversation(request.params).then(
+        function(conversation) {
+          response.success(conversation);
+        },
+        function(error) {
+          console.log(error);
+          response.error(error);
+        }
+      );
+      }
     );
 });
 
@@ -324,7 +404,7 @@ Parse.Cloud.define("test_joinConversation", function(request, response)
  */
 Parse.Cloud.define("test_sendMessage", function(request, response)
 {
-	var options = {
+  var options = {
         username: testUser,
         email: testEmail,
         password: testPass
@@ -332,18 +412,18 @@ Parse.Cloud.define("test_sendMessage", function(request, response)
 
     var user = new Parse.User(options);
     user.logIn(testUser, testPass, options).then(
-    	function(user)
-    	{
-			gc_chat.sendMessage(request.params).then(
-				function(message) {
-					response.success(message);
-				},
-				function(error) {
-					console.log(error);
-					response.error(error);
-				}
-			);
-    	}
+      function(user)
+      {
+      gc_chat.sendMessage(request.params).then(
+        function(message) {
+          response.success(message);
+        },
+        function(error) {
+          console.log(error);
+          response.error(error);
+        }
+      );
+      }
     );
 });
 
@@ -351,9 +431,10 @@ Parse.Cloud.define("test_sendMessage", function(request, response)
  * // Listens for new messages //
  * notifies Express if a message should be displayed to the current user
  */
+ /*
 Parse.Cloud.afterSave("Message", function(request)
 {
-	var options = {
+  var options = {
         username: testUser,
         email: testEmail,
         password: testPass
@@ -361,23 +442,24 @@ Parse.Cloud.afterSave("Message", function(request)
 
     var user = new Parse.User(options);
     user.logIn(testUser, testPass, options).then(
-    	function(user)
-    	{
-			gc_chat.isMessageForMe(request).then(
-				function(result) {
-					if (result == true)
-					{
-						console.log("You got a message man!");
-						// WE WANT TO NOTIFY THE FRONT END!
-					}
-				},
-				function(error) {
-					console.log(error);
-				}
-			);
-    	}
+      function(user)
+      {
+      gc_chat.isMessageForMe(request).then(
+        function(result) {
+          if (result == true)
+          {
+            console.log("You got a message man!");
+            // WE WANT TO NOTIFY THE FRONT END!
+          }
+        },
+        function(error) {
+          console.log(error);
+        }
+      );
+      }
     );
 });
+*/
 
 /*
  * Finds all the conversations involving the current user
@@ -386,7 +468,8 @@ Parse.Cloud.afterSave("Message", function(request)
  */
 Parse.Cloud.define("test_getConversations", function(request, response)
 {
-	var options = {
+  console.log(request.params);
+  var options = {
         username: testUser,
         email: testEmail,
         password: testPass
@@ -394,18 +477,18 @@ Parse.Cloud.define("test_getConversations", function(request, response)
 
     var user = new Parse.User(options);
     user.logIn(testUser, testPass, options).then(
-    	function(user)
-    	{
-			gc_chat.getConverstations().then(
-				function(conversations) {
-					response.success(conversations);
-				},
-				function(error) {
-					console.log(error);
-					response.error(error);
-				}
-			);
-    	}
+      function(user)
+      {
+      gc_chat.getConverstations().then(
+        function(conversations) {
+          response.success(conversations);
+        },
+        function(error) {
+          console.log(error);
+          response.error(error);
+        }
+      );
+      }
     );
 });
 
@@ -419,7 +502,7 @@ Parse.Cloud.define("test_getConversations", function(request, response)
  */
 Parse.Cloud.define("test_getMsgsForConversation", function(request, response)
 {
-	var options = {
+  var options = {
         username: testUser,
         email: testEmail,
         password: testPass
@@ -427,17 +510,90 @@ Parse.Cloud.define("test_getMsgsForConversation", function(request, response)
 
     var user = new Parse.User(options);
     user.logIn(testUser, testPass, options).then(
-    	function(user)
-    	{
-			gc_chat.getMsgsForConversation(request.params).then(
-				function(conversations) {
-					response.success(conversations);
-				},
-				function(error) {
-					console.log(error);
-					response.error(error);
-				}
-			);
-    	}
+      function(user)
+      {
+        gc_chat.getMsgsForConversation(request.params).then(
+          function(conversations) {
+            response.success(conversations);
+          },
+          function(error) {
+            console.log(error);
+            response.error(error);
+          }
+        );
+      }
+    );
+});
+
+/*
+ * Adds in optional data from the user for the messaging
+ *
+ * Required parameters:
+ * - gender
+ * - age
+ * - city
+ * - country
+ *
+ * returns a list of messages
+ */
+Parse.Cloud.define("test_addOptionalData", function(request, response)
+{
+  var options = {
+        username: testUser,
+        email: testEmail,
+        password: testPass
+    };
+
+    var user = new Parse.User(options);
+    user.logIn(testUser, testPass, options).then(
+      function(user)
+      {
+        gc_user.optionalData(request.params).then(
+          function(conversations) {
+            response.success(conversations);
+          },
+          function(error) {
+            console.log(error);
+            response.error(error);
+          }
+        );
+      }
+    );
+});
+
+/*
+ * Invites users based on email or phone
+ *
+ * Required parameters:
+ * - firstname
+ * - lastname
+ *
+ * Optional required parameters: (EITHER)
+ * - email
+ * - phone
+ *
+ */
+Parse.Cloud.define("test_invite", function(request, response)
+{
+  var options = {
+        username: testUser,
+        email: testEmail,
+        password: testPass
+    };
+
+    var user = new Parse.User(options);
+    user.logIn(testUser, testPass, options).then(
+      function(user)
+      {
+        gc_invite.invite(request.params).then(
+          function(conversations) {
+            response.success(conversations);
+          },
+          function(error) {
+            console.log(error);
+            response.error(error);
+          }
+        );
+      }
     );
 });
