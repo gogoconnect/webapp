@@ -9,6 +9,8 @@ def testRegister(numUser):
                "username" : "user_" + str(x),
                "password" : "user_" + str(x),
                "email" : "user_" + str(x) + "@gmail.com",
+               "firstname" : "first_" + str(x),
+               "lastname" : "last_" + str(x)
              }), {
                "X-Parse-Application-Id": "OPqna189K6mc31nqwGV8BtWrFMRTHRNNCE1iohOF",
                "X-Parse-REST-API-Key": "Ck41CErQEaxoTdqkBku06aqzCht8ol0qUt7ERQSu",
@@ -30,6 +32,6 @@ def testLogin(email, password):
     result = json.loads(connection.getresponse().read())
     print result
 
-testLogin("user_0@gmail.com", "user_0");
-
+#testLogin("user_0@gmail.com", "user_0")
+#testRegister(1)
         

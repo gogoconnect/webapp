@@ -33,3 +33,16 @@ Parse.Cloud.define("login", function(request, response)
 		}
 	);
 });
+
+Parse.Cloud.define("getUser", function(request, response)
+{
+	gc_user.login(request.params).then(
+		function(user) {
+			response.success(user);
+		},
+		function(error) {
+			console.log(error);
+			response.error("Failed to login");
+		}
+	);
+});
